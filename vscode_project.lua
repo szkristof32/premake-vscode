@@ -41,15 +41,6 @@ function m.getcompiler(cfg)
 	return toolset
 end
 
--- cross platform symbolic link creation
-function symlink(target, link)
-	if os.host() == 'windows' then
-		os.execute('cmd.exe /c mklink /d ' .. link .. ' ' .. target)
-	else
-		os.execute('ln -s -f ' .. target .. ' ' .. link)
-	end
-end
-
 -- VS Code only scans for project files inside the project's directory, so symlink them into
 -- the project's directory.
 function m.files(prj)
@@ -61,11 +52,6 @@ function m.files(prj)
 		end,
 		onbranchexit = function(node, depth)
 			node_path = node_path:sub(1, node_path:len()-(node.name:len()+1))
-		end,
-		onleaf = function(node, depth)
-			local full_path = prj.location .. node_path
-			os.mkdir(full_path)
-			symlink(node.abspath, full_path)
 		end
 	}, true)
 end
@@ -87,9 +73,9 @@ function m.vscode_tasks(prj)
 			_p(2, '"label": "%s",', build_task_name)
 	-- check if ninja is used, otherwise default to make.
 	if os.isfile(prj.location .. '/build.ninja') then
-			_p(2, '"command": "clear && time ninja -j$(nproc)",')
+			_p(2, '"command": "clear && premake5 gmake2 && time ninja -j$(nproc)",')
 	else
-			_p(2, '"command": "clear && time make %s -r -j$(nproc)",', prj.name)
+			_p(2, '"command": "clear && premake5 gmake2 && time make %s -r -j$(nproc)",', prj.name)
 	end
 			_p(2, '"args": [],')
 			_p(2, '"options": {')
@@ -129,7 +115,7 @@ function m.vscode_launch(prj)
 			_p(2, '"program": "%s/%s",', cfg.buildtarget.directory, prj.name)
 			_p(2, '"args": [],')
 			_p(2, '"stopAtEntry": false,')
-			_p(2, '"cwd": "${workspaceFolder}/../",')
+			_p(2, '"cwd": "${workspaceFolder}/",')
 			_p(2, '"environment": [],')
 			_p(2, '"externalConsole": false,')
 			_p(2, '"MIMode": "gdb",')

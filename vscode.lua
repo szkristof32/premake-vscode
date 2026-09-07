@@ -23,8 +23,11 @@ local project = p.project
 function vscode.generateWorkspace(wks)
     p.eol("\r\n")
     p.indent("  ")
-    
+
     p.generate(wks, ".code-workspace", vscode.workspace.generate)
+    p.generate(wks, wks.location .. "/.vscode/tasks.json", vscode.workspace.generate_tasks)
+    p.generate(wks, wks.location .. "/.vscode/launch.json", vscode.workspace.generate_launch)
+    --p.generate(wks, wks.location .. "/.vscode/c_cpp_properties.json", vscode.workspace.c_cpp_properties)
 end
 
 function vscode.generateProject(prj)
@@ -47,7 +50,6 @@ function vscode.cleanProject(prj)
 end
 
 include("vscode_workspace.lua")
-include("vscode_project.lua")
 
 include("_preload.lua")
 

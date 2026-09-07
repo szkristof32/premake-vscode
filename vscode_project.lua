@@ -19,18 +19,6 @@ local vscode = p.modules.vscode
 vscode.project = {}
 local m = vscode.project
 
-local cpp_standard = {}
-cpp_standard["C++98"] = 98
-cpp_standard["C++11"] = 11
-cpp_standard["C++14"] = 14
-cpp_standard["C++17"] = 17
-cpp_standard["C++20"] = 20
-cpp_standard["gnu++98"] = 98
-cpp_standard["gnu++11"] = 11
-cpp_standard["gnu++14"] = 14
-cpp_standard["gnu++17"] = 17
-cpp_standard["gnu++20"] = 20
-
 local build_task_name = "C/C++: build"
 
 function m.getcompiler(cfg)
@@ -61,9 +49,6 @@ end
 -- Project: Generate vscode tasks.json.
 --
 function m.vscode_tasks(prj)
-
-	m.files(prj)
-
 	p.utf8()
 	--TODO task per project
 	_p('{')
@@ -79,7 +64,7 @@ function m.vscode_tasks(prj)
 	end
 			_p(2, '"args": [],')
 			_p(2, '"options": {')
-				_p(3, '"cwd": "${workspaceFolder}/../"')
+				_p(3, '"cwd": "${workspaceFolder}/"')
 			_p(2, '},')
 			_p(2, '"problemMatcher": [')
 				_p(3, '"$gcc"')
@@ -110,7 +95,9 @@ function m.vscode_launch(prj)
 			_p(1, ',{')
 		end
 			_p(2, '"name": "%s: Build and debug",', prj.name)
-			_p(2, '"type": "cppdbg",')
+			--_p(2, '"type": "cppdbg",') -- microsoft's C++ extension. TODO detect which is used and choose it?
+			_p(2, '"type": "lldb",') -- CodeLLVM
+			--_p(2, '"type": "lldb-dap",') -- LLVM's LLDB DAP
 			_p(2, '"request": "launch",')
 			_p(2, '"program": "%s/%s",', cfg.buildtarget.directory, prj.name)
 			_p(2, '"args": [],')
